@@ -186,7 +186,9 @@ private fun MainScreenContent(
                             questionId = backStackEntry.arguments?.getString("questionId")!!,
                             stackoverflowApi = stackoverflowApi,
                             favoriteQuestionDao = favoriteQuestionDao,
-                            navController = nestedNavController,
+                            onError = {
+                                nestedNavController.popBackStack()
+                            }
                         )
                     }
                 }
@@ -200,7 +202,13 @@ private fun MainScreenContent(
                     composable(route = Route.FavoriteQuestionsScreen.routeName) {
                         FavoriteQuestionsScreen(
                             favoriteQuestionDao = favoriteQuestionDao,
-                            navController = nestedNavController
+                            onQuestionClicked = { favoriteQuestionId, favoriteQuestionTitle ->
+                                nestedNavController.navigate(
+                                    Route.QuestionDetailsScreen.routeName
+                                        .replace("{questionId}", favoriteQuestionId)
+                                        .replace("{questionTitle}", favoriteQuestionTitle)
+                                )
+                            }
                         )
                     }
                     composable(route = Route.QuestionDetailsScreen.routeName) { backStackEntry ->
@@ -208,8 +216,9 @@ private fun MainScreenContent(
                             questionId = backStackEntry.arguments?.getString("questionId")!!,
                             stackoverflowApi = stackoverflowApi,
                             favoriteQuestionDao = favoriteQuestionDao,
-                            navController = nestedNavController
-                        )
+                            onError = {
+                                nestedNavController.popBackStack()
+                            }                        )
                     }
                 }
             }

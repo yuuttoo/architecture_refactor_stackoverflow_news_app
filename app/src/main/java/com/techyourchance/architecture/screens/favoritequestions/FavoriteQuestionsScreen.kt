@@ -22,7 +22,7 @@ import com.techyourchance.architecture.screens.common.composables.QuestionItem
 @Composable
 fun FavoriteQuestionsScreen(
     favoriteQuestionDao: FavoriteQuestionDao,
-    navController: NavHostController,
+    onQuestionClicked: (String, String) -> Unit
 ) {
     val favorites = favoriteQuestionDao.observe().collectAsState(initial = listOf())
 
@@ -39,13 +39,7 @@ fun FavoriteQuestionsScreen(
                 QuestionItem(
                     questionId = favoriteQuestion.id,
                     questionTitle = favoriteQuestion.title,
-                    onQuestionClicked = {
-                        navController.navigate(
-                            Route.QuestionDetailsScreen.routeName
-                                .replace("{questionId}", favoriteQuestion.id)
-                                .replace("{questionTitle}", favoriteQuestion.title)
-                        )
-                    },
+                    onQuestionClicked = { onQuestionClicked(favoriteQuestion.id, favoriteQuestion.title) },
                 )
                 if (index < favorites.value.size - 1) {
                     HorizontalDivider(
