@@ -28,7 +28,6 @@ class ScreensNavigator {
     val currentBottomTab = MutableStateFlow<BottomTab?>(BottomTab.Main)
     val currentRoute = MutableStateFlow<Route?>(null)
     val isRootRoute = MutableStateFlow(false)
-    val arguments = MutableStateFlow<Bundle?>(null)//for backstackEntryState但不想暴露，又必須給id,title
 
     fun navigateBack() {
         if (!nestedNavController.popBackStack()) {
@@ -52,7 +51,7 @@ class ScreensNavigator {
         }
     }
 
-    fun setParentNavController(navController: NavHostController) {
+    fun setParentNavController(navController: NavHostController) {//for Tab navigation
         parentNavController = navController
 
         parentNavControllerObserveJob?.cancel()
@@ -69,7 +68,7 @@ class ScreensNavigator {
         }
 
     }
-    fun setNestedNavController(navController: NavHostController) {
+    fun setNestedNavController(navController: NavHostController) {//for arrow navigation
         nestedNavController = navController
 
         nestedNavControllerObserveJob?.cancel()//cancel if there was previous job existing
@@ -80,17 +79,28 @@ class ScreensNavigator {
                 Route.MainTab.routeName -> Route.MainTab
                 Route.FavoritesTab.routeName -> Route.FavoritesTab
                 Route.QuestionsListScreen.routeName -> Route.QuestionsListScreen
-                Route.QuestionDetailsScreen.routeName -> Route.QuestionDetailsScreen
+                Route.QuestionDetailsScreen().routeName -> {
+                    val args = backStackEntry.arguments
+                    Route.QuestionDetailsScreen(
+                        args?.getString("questionId")!!,
+                        args?.getString("questionTitle")!!
+                    )
+
+                }
                 Route.FavoriteQuestionsScreen.routeName -> Route.FavoriteQuestionsScreen
                 null -> null
                 else -> throw RuntimeException("unsupported route: $routeName")
             }
             currentRoute.value = route
             isRootRoute.value = route == Route.QuestionsListScreen
-            arguments.value = backStackEntry.arguments
         }.collect()
       }
     }
+
+    fun toRoute(route: Route) {
+        nestedNavController.navigate(route.navCommand)
+    }
+
     companion object {
         val BOTTOM_TABS = listOf(BottomTab.Main, BottomTab.Favorites)
     }
