@@ -30,6 +30,7 @@ import com.techyourchance.architecture.screens.Route
 import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsScreen
 import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsScreen
 import com.techyourchance.architecture.screens.questionslist.QuestionsListScreen
+import java.lang.RuntimeException
 
 @Composable
 fun MainScreen(
@@ -42,22 +43,16 @@ fun MainScreen(
         mutableStateOf(parentNavController)
     }
 
-    val navBackStackEntry by parentNavController.currentBackStackEntryAsState()
+    val parentNavBackStackEntry by parentNavController.currentBackStackEntryAsState()
 
-    val currentRoute = remember(navBackStackEntry) {
-        when(val currentRouteName = navBackStackEntry?.destination?.route) {
-            Route.QuestionsListScreen.routeName -> Route.QuestionsListScreen
-            Route.QuestionDetailsScreen.routeName -> Route.QuestionDetailsScreen
-            Route.FavoriteQuestionsScreen.routeName -> Route.FavoriteQuestionsScreen
-            Route.MainTab.routeName -> Route.MainTab
-            Route.FavoritesTab.routeName -> Route.FavoritesTab
+
+    val currentBottomTab = remember(parentNavBackStackEntry) {
+        when(parentNavBackStackEntry?.destination?.route) {
+            Route.MainTab.routeName -> BottomTab.Main
+            Route.FavoritesTab.routeName -> BottomTab.Favorites
             null -> null
-            else -> throw RuntimeException("unsupported route: $currentRouteName")
+            else -> throw RuntimeException("unsupported parent nav route")
         }
-    }
-
-    val currentBottomTab = remember(currentRoute) {
-        currentRoute?.bottomTab
     }
 
     val bottomTabsToRootRoutes = remember() {
